@@ -5,11 +5,19 @@ import {
 import { ExecutionContext, Hono } from 'hono'
 import HmacSHA256 from "crypto-js/hmac-sha256";
 import Base64 from "crypto-js/enc-base64";
+import { uploadToGyazo } from './gyazo';
+import { analyzeImageBlob } from './openai';
+import { white_list } from './utils';
+import { handleEvent } from './handleEvent';
 
 type Bindings = {
   CHANNEL_ACCESS_TOKEN: string,
   CHANNEL_SECRET: string,
   // WEBHOOK_URL: string,
+  GYAZO_ACCESS_TOKEN: string,
+  OPENAAI_API_KEY: string,
+  BOT_CASH: KVNamespace,
+  DB: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -23,6 +31,10 @@ app.post('/webhook', async (c) => {
   const channelAccessToken = c.env.CHANNEL_ACCESS_TOKEN || ''
   const channelSecret = c.env.CHANNEL_SECRET || ''
   // const webhookURL = c.env.WEBHOOK_URL || ''
+  const gyazoAccessToken = c.env.GYAZO_ACCESS_TOKEN || '';
+  const openaiApiKey = c.env.OPENAAI_API_KEY || '';
+  const kv = c.env.BOT_CASH || '';
+  const db = c.env.DB || '';
 
   // シグネチャの取得
   const signature = c.req.header('x-line-signature')
@@ -43,64 +55,16 @@ app.post('/webhook', async (c) => {
     event,
     channelAccessToken,
     // webhookURL,
-    c.executionCtx
+    c.executionCtx,
+    gyazoAccessToken,
+    openaiApiKey,
+    kv,
+    db
   ))
   await Promise.all(promises)
 
   return c.text('OK')
 })
-
-const handleEvent = async (
-  event: webhook.Event,
-  accessToken: string,
-  // webhookURL: string,
-  ctx: ExecutionContext
-) => {
-  if (event.type !== 'message' || event.message.type !== 'text') return;
-
-  try {
-    fetch('https://api.line.me/v2/bot/chat/loading/start', {
-      method: 'POST',
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({"chatId": event.source?.userId})
-    })
-
-    const { text } = event.message;
-    ctx.waitUntil(
-      (async () => {
-        // const res = await fetch(webhookURL, {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json'
-        //   },
-        //   body: JSON.stringify(event)
-        // })
-        // const text = await res.text();
-        if(!event.replyToken) return
-        const responseBody: messagingApi.ReplyMessageRequest = {
-          replyToken: event.replyToken,
-          messages: [
-            {'type': 'text', 'text': text}
-          ] 
-        }
-        
-        return fetch('https://api.line.me/v2/bot/message/reply', {
-          method: 'POST',
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(responseBody)
-        }) 
-      })()
-    )
-  } catch (error) {
-    console.error(error);
-  }
-}
 
 export default app
 

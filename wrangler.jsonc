@@ -2,32 +2,32 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "250223-moisen-bot",
   "main": "src/index.ts",
-  "compatibility_date": "2025-02-23"
+  "compatibility_date": "2025-02-23",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
+  "kv_namespaces": [
+    {
+      "binding": "BOT_CASH",
+      "id": "83c89f970c254ef3bc988ea556b00aab"
+    }
+  ],
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",
   //     "bucket_name": "my-bucket"
   //   }
   // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "MY_DB",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "250223-moisen-hack",
+      "database_id": "a5065d22-6b16-4a2d-81b9-ccf0127e0aac"
+    }
+  ]
   // "ai": {
   //   "binding": "AI"
   // },
