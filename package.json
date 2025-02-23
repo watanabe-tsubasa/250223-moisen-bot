@@ -5,6 +5,9 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
+    "@line/bot-sdk": "^9.7.1",
+    "@types/crypto-js": "^4.2.2",
+    "crypto-js": "^4.2.0",
     "hono": "^4.7.2"
   },
   "devDependencies": {
